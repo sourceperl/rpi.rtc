@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import os
+import pyRPiRTC
+
+# check root
+if os.geteuid() != 0:
+    exit("You need to have root privileges to run this script.")
+
+# some vars
+rtc = pyRPiRTC.DS1302(clk_pin=11, data_pin=13, ce_pin=15)
+
+try:
+    # read date and time from RTC chip, send this to system clock
+    dt = rtc.read_datetime()
+    os.system('date -s "%s"' % dt.strftime('%Y-%m-%d %H:%M:%S.%fZ'))
+    print('system RTC set to %s' % dt.strftime('%Y-%m-%d %H:%M:%S.%fZ'))
+finally:
+    # clean close
+    rtc.close()

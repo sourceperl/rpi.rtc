@@ -9,7 +9,7 @@ class DS1302:
     def __init__(self, clk_pin=11, data_pin=13, ce_pin=15):
         # init GPIO
         # TODO no warnings
-        # GPIO.setwarnings(False)
+        GPIO.setwarnings(False)
         # use safer pin number (avoid GPIO renumber on each Pi release)
         GPIO.setmode(GPIO.BOARD)
         # set GPIO pins
