@@ -8,7 +8,7 @@ class DS1302:
 
     def __init__(self, clk_pin=11, data_pin=13, ce_pin=15):
         # init GPIO
-        # TODO no warnings
+        # no warnings
         GPIO.setwarnings(False)
         # use safer pin number (avoid GPIO renumber on each Pi release)
         GPIO.setmode(GPIO.BOARD)
@@ -103,7 +103,7 @@ class DS1302:
         self._start_tx()
         # read ram burst
         self._w_byte(0xff)
-        # Read data bytes.
+        # read data bytes
         bytes = bytearray()
         for _ in range(31):
             bytes.append(self._r_byte())
@@ -122,11 +122,9 @@ class DS1302:
         self._start_tx()
         # write ram burst
         self._w_byte(0xfe)
-        # Write data bytes.
+        # write data bytes
         for i in range(min(len(bytes), 31)):
             self._w_byte(ord(bytes[i:i + 1]))
-        # for _ in range(31 - len(bytes)):
-        #     self._w_byte(ord(' '))
         # end of message
         self._end_tx()
 
@@ -176,7 +174,7 @@ class DS1302:
         self._start_tx()
         # write clock burst
         self._w_byte(0xbe)
-        # Write all data
+        # write all data
         for byte in byte_l:
             self._w_byte(byte)
         # end of message
