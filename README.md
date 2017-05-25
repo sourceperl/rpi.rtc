@@ -31,8 +31,11 @@ Typically call at RPi startup
 
     sudo date -s `./ds1302_get_utc`
 
-### One line to check system time vs RTC chip time
+### One line to check RTC chip time vs system time
 
-Since RTC store only second and not millisecond a 1s delta can occur
+Since RTC store only second and not millisecond a 1s delta can occur (or more after a few days)
 
-    date --utc +%FT%TZ; ds1302_get_utc;
+    # drift in second
+    echo $(($(date -u -d`ds1302_get_utc` +%s) - $(date -u +%s)))
+    # human readable
+    echo "RTC `ds1302_get_utc`"; echo "SYS `date --utc +%FT%TZ`";
