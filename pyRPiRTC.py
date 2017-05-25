@@ -4,7 +4,8 @@ import RPi.GPIO as GPIO
 
 
 class DS1302:
-    CLK_DELAY = 0.00001
+    # 5us
+    CLK_DELAY = 5E-6
 
     def __init__(self, clk_pin=11, data_pin=13, ce_pin=15):
         # init GPIO
@@ -34,20 +35,15 @@ class DS1302:
         """
         Start of transaction.
         """
-        GPIO.setup(self._data_pin, GPIO.OUT, initial=GPIO.LOW)
         GPIO.output(self._clk_pin, GPIO.LOW)
-        GPIO.output(self._data_pin, GPIO.LOW)
-        time.sleep(self.CLK_DELAY)
         GPIO.output(self._ce_pin, GPIO.HIGH)
 
     def _end_tx(self):
         """
         End of transaction.
         """
-        GPIO.setup(self._data_pin, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self._data_pin, GPIO.IN)
         GPIO.output(self._clk_pin, GPIO.LOW)
-        GPIO.output(self._data_pin, GPIO.LOW)
-        time.sleep(self.CLK_DELAY)
         GPIO.output(self._ce_pin, GPIO.LOW)
 
     def _r_byte(self):
@@ -57,18 +53,17 @@ class DS1302:
         :return: byte value
         :rtype: int
         """
-        # data pin is now input with pull-up resistor
-        GPIO.setup(self._data_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        # data pin is now input (pull-down resistor embedded in chip)
+        GPIO.setup(self._data_pin, GPIO.IN)
         # clock the byte from chip
         byte = 0
         for i in range(8):
-            # make a pulse on CLK pin
-            time.sleep(self.CLK_DELAY)
+            # make a high pulse on CLK pin
             GPIO.output(self._clk_pin, GPIO.HIGH)
             time.sleep(self.CLK_DELAY)
             GPIO.output(self._clk_pin, GPIO.LOW)
-            # store current bit into byte
             time.sleep(self.CLK_DELAY)
+            # chip out data on clk falling edge: store current bit into byte
             bit = GPIO.input(self._data_pin)
             byte |= ((2 ** i) * bit)
         # return byte value
@@ -82,11 +77,12 @@ class DS1302:
         :type byte: int
         """
         # data pin is now output
-        GPIO.setup(self._data_pin, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self._data_pin, GPIO.OUT)
         # clock the byte to chip
         for _ in range(8):
             GPIO.output(self._clk_pin, GPIO.LOW)
             time.sleep(self.CLK_DELAY)
+            # chip read data on clk rising edge
             GPIO.output(self._data_pin, byte & 0x01)
             byte >>= 1
             GPIO.output(self._clk_pin, GPIO.HIGH)
@@ -104,27 +100,27 @@ class DS1302:
         # read ram burst
         self._w_byte(0xff)
         # read data bytes
-        bytes = bytearray()
+        byte_a = bytearray()
         for _ in range(31):
-            bytes.append(self._r_byte())
+            byte_a.append(self._r_byte())
         # end of message
         self._end_tx()
-        return bytes
+        return byte_a
 
-    def write_ram(self, bytes):
+    def write_ram(self, byte_a):
         """
         Write RAM with bytes
 
-        :param bytes: bytes to write
-        :type bytes: bytearray
+        :param byte_a: bytes to write
+        :type byte_a: bytearray
         """
         # start message
         self._start_tx()
         # write ram burst
         self._w_byte(0xfe)
         # write data bytes
-        for i in range(min(len(bytes), 31)):
-            self._w_byte(ord(bytes[i:i + 1]))
+        for i in range(min(len(byte_a), 31)):
+            self._w_byte(ord(byte_a[i:i + 1]))
         # end of message
         self._end_tx()
 
@@ -133,7 +129,7 @@ class DS1302:
         Read current date and time from RTC chip.
 
         :return: date and time
-        :rtype: datetime
+        :rtype: datetime.datetime
         """
         # start message
         self._start_tx()
@@ -159,7 +155,7 @@ class DS1302:
         Write a python datetime to RTC chip.
 
         :param dt: datetime to write
-        :type dt: datetime
+        :type dt: datetime.datetime
         """
         # format message
         byte_l = [0] * 9
