@@ -16,18 +16,23 @@ Simple Python module to deal with DS1302 RTC on Raspberry Pi
 ### Setup
 
     sudo python3 setup.py install
-    sudo cp examples/* /usr/local/bin/
 
 ### Read RTC chip date and time
 
-    rtc_get_time
+    ds1302_get_utc
 
 ### RPi date and time (UTC) to RTC chip
 
-    rtc_set_utc
+    ds1302_set_utc
 
 ### Update Rpi system time from RTC chip
 
 Typically call at RPi startup
 
-    sudo update_sys_clock
+    sudo date -s `./ds1302_get_utc`
+
+### One line to check system time vs RTC chip time
+
+Since RTC store only second and not millisecond a 1s delta can occur
+
+    date --utc +%FT%TZ; ds1302_get_utc;

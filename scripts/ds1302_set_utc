@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-# Write RPi current date and time (UTC time) to RTC chip
+# write RPi current date and time (UTC time) to DS1302 RTC chip
+# read value after write to check update
 
 import datetime
 import pyRPiRTC
@@ -15,7 +16,7 @@ try:
     # check update is good
     dt_read = rtc.read_datetime()
     if -2 < (dt_write - dt_read).total_seconds() < +2:
-        print('Set RTC time is %s' % dt_write.strftime('%Y-%m-%d %H:%M:%S.000000Z'))
+        print(dt_write.strftime('%Y-%m-%dT%H:%M:%SZ'))
     else:
         exit('unable to set RTC time')
 finally:
