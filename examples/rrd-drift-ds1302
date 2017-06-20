@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Log drift of ds1302 RTC chip to RedisRRD, call by cron (cp to /etc/cron.hourly)
+
+rrd_add DS1302_DRIFT $(($(date -u -d`ds1302_get_utc` +%s) - $(date -u +%s)))
