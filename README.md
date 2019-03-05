@@ -15,6 +15,7 @@ Simple Python module to deal with DS1302 RTC on Raspberry Pi
 
 ### Setup
 
+    sudo apt-get -y install python3-rpi.gpio
     sudo python3 setup.py install
 
 ### Read RTC chip date and time
