@@ -11,6 +11,7 @@ setup(
     ],
     scripts=[
         'scripts/ds1302_get_utc',
-        'scripts/ds1302_set_utc'
+        'scripts/ds1302_set_utc',
+	'scripts/ds1302_set_utc_from_string'
     ]
 )
