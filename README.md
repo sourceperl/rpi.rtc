@@ -26,6 +26,10 @@ Simple Python module to deal with DS1302 RTC on Raspberry Pi
 
     ds1302_set_utc
 
+### Set date and time(UTC) from string to RTC chip
+
+    ds1302_set_utc_from_string "09/19/18 13:55:26"
+
 ### Update Rpi system time from RTC chip
 
 Typically call at RPi startup
